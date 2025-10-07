@@ -40,6 +40,11 @@ public class MainFrame extends JFrame {
     private final JTextField txtDuracion = new JTextField(5);
     private final JTextField txtGenero = new JTextField(10);
     private final JTextField txtBuscar = new JTextField(10);
+    private final JTextField txtGeneroFiltro = new JTextField(10);
+    private final JTextField txtAnioDesde = new JTextField(5);
+    private final JTextField txtAnioHasta = new JTextField(5);
+    private final JButton btnBuscarGenero = new JButton("Buscar por Género");
+    private final JButton btnBuscarRango = new JButton("Buscar por Rango de Años");
 
     /**
      * Constructor que configura la ventana principal y sus componentes
@@ -121,6 +126,17 @@ public class MainFrame extends JFrame {
         btnPanel.add(btnLimpiar);
         btnPanel.add(Box.createHorizontalStrut(5));
         add(btnPanel, BorderLayout.SOUTH);
+        btnPanel.add(Box.createHorizontalStrut(10));
+        btnPanel.add(new JLabel("Género:"));
+        btnPanel.add(txtGeneroFiltro);
+        btnPanel.add(btnBuscarGenero);
+
+        btnPanel.add(Box.createHorizontalStrut(10));
+        btnPanel.add(new JLabel("Años:"));
+        btnPanel.add(txtAnioDesde);
+        btnPanel.add(new JLabel(" - "));
+        btnPanel.add(txtAnioHasta);
+        btnPanel.add(btnBuscarRango);
 
         // Acciones de botones
         btnCrear.addActionListener(e -> crearPelicula());
@@ -128,6 +144,8 @@ public class MainFrame extends JFrame {
         btnEliminar.addActionListener(e -> eliminarPelicula());
         btnBuscar.addActionListener(e -> buscar());
         btnLimpiar.addActionListener(e -> limpiarCampos());
+        btnBuscarGenero.addActionListener(e -> buscarPorGenero());
+        btnBuscarRango.addActionListener(e -> buscarPorRango());
 
         // Ajusta tamaño, centra y muestra la ventana
         pack();
@@ -210,7 +228,7 @@ public class MainFrame extends JFrame {
     private void eliminarPelicula() {
         int row = table.getSelectedRow();
         Cartelera c = tableModel.getAt(row);
-        
+
         if (c == null) {
             JOptionPane.showMessageDialog(this, "Seleccione una pelicula.");
             return;
@@ -224,15 +242,15 @@ public class MainFrame extends JFrame {
         );
 
         if (opcion == JOptionPane.YES_OPTION) {
-            
+
             Cartelera existe = controller.buscarPorId(c.getId());
             if (existe == null) {
-            JOptionPane.showMessageDialog(this, "La pelicula ya no existe en la base de datos.");
-            refrescarTabla();
-            limpiarCampos();
-            return;
+                JOptionPane.showMessageDialog(this, "La pelicula ya no existe en la base de datos.");
+                refrescarTabla();
+                limpiarCampos();
+                return;
             }
-            
+
             String msg = controller.eliminar(c.getId());
             JOptionPane.showMessageDialog(this, msg);
             refrescarTabla();
@@ -287,6 +305,33 @@ public class MainFrame extends JFrame {
                     limpiarCampos(); // si son varias, no rellenamos para evitar confusión
                 }
             }
+        }
+    }
+
+    private void buscarPorGenero() {
+        String genero = txtGeneroFiltro.getText().trim();
+        List<Cartelera> lista = controller.buscarPorGenero(genero);
+
+        if (lista.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No se encontraron películas con género: " + genero);
+        }
+        tableModel.setData(lista);
+    }
+
+    private void buscarPorRango() {
+        try {
+            int desde = Integer.parseInt(txtAnioDesde.getText());
+            int hasta = Integer.parseInt(txtAnioHasta.getText());
+
+            List<Cartelera> lista = controller.buscarPorRangoAnios(desde, hasta);
+
+            if (lista.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No se encontraron películas entre " + desde + " y " + hasta);
+            }
+            tableModel.setData(lista);
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Ingrese años válidos (números).");
         }
     }
 

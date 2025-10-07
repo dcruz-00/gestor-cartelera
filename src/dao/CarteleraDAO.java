@@ -133,6 +133,57 @@ public class CarteleraDAO {
         return null;
     }
 
+    public List<Cartelera> buscarPorGenero(String genero) {
+        List<Cartelera> out = new ArrayList<>();
+        String sql = "SELECT id, titulo, director, anio, duracion, genero FROM Cartelera WHERE LOWER(genero) LIKE ? ORDER BY id";
+
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, "%" + genero.toLowerCase() + "%");
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    out.add(new Cartelera(
+                            rs.getInt("id"),
+                            rs.getString("titulo"),
+                            rs.getString("director"),
+                            rs.getInt("anio"),
+                            rs.getInt("duracion"),
+                            rs.getString("genero")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error buscarPorGenero(): " + e.getMessage());
+        }
+        return out;
+    }
+
+    public List<Cartelera> buscarPorRangoAnios(int desde, int hasta) {
+        List<Cartelera> out = new ArrayList<>();
+        String sql = "SELECT id, titulo, director, anio, duracion, genero FROM Cartelera WHERE anio BETWEEN ? AND ? ORDER BY anio";
+
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, desde);
+            ps.setInt(2, hasta);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    out.add(new Cartelera(
+                            rs.getInt("id"),
+                            rs.getString("titulo"),
+                            rs.getString("director"),
+                            rs.getInt("anio"),
+                            rs.getInt("duracion"),
+                            rs.getString("genero")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error buscarPorRangoAnios(): " + e.getMessage());
+        }
+        return out;
+    }
+
     /**
      * Actualiza los datos de una película existente en la base de datos
      *

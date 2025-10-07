@@ -40,6 +40,20 @@ public class CarteleraController {
         return dao.buscarPorId(id);
     }
 
+    public List<Cartelera> buscarPorGenero(String genero) {
+        if (genero == null || genero.isBlank()) {
+            return dao.listar();
+        }
+        return dao.buscarPorGenero(genero);
+    }
+
+    public List<Cartelera> buscarPorRangoAnios(Integer desde, Integer hasta) {
+        if (desde == null || hasta == null || desde <= 0 || hasta <= 0 || desde > hasta) {
+            return dao.listar();
+        }
+        return dao.buscarPorRangoAnios(desde, hasta);
+    }
+
     /**
      * Crea una nueva pelicula en la cartelera.
      *
